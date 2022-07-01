@@ -1,0 +1,47 @@
+# docker-compose.yml のファイルフォーマットです。
+# https://docs.docker.com/compose/compose-file/#compose-and-docker-compatibility-matrix
+version: '3.8'
+
+# service = container
+services:
+
+  # service name (ほかから参照するとき使うので重要です。)
+  mrrhp-mysql-service:
+    # NOTE: container name conflict を防ぐため mrrhp- をつけている。
+    container_name: mrrhp-mysql-container
+    build: ./mysql-container
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/mysql_data:/var/lib/mysql
+      - ./db/mysql_log:/var/log/mysql
+      - ./db/mysql_conf:/etc/mysql/conf.d
+    environment:
+      - MYSQL_DATABASE=app
+      - MYSQL_USER=LocalAdmin
+      - MYSQL_PASSWORD=LocalAdminPassword
+      - MYSQL_ROOT_PASSWORD=LocalRootPassword
+
+  mrrhp-django-service:
+    # NOTE: container name conflict を防ぐため mrrhp- をつけている。
+    container_name: mrrhp-django-container
+    build: ./django-container
+    ports:
+      - 8000:8000
+    # systemctl を有効にするもの。
+    privileged: true
+    # tty, stdin_open しておくと exec するときに -it がいらないみたい。
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./app/mrrhp-apache:/app
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-xxxxxxxxxxxx
+      - MYSQL_DATABASE=app
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=LocalRootPassword
+      - MYSQL_HOSTNAME=mysql-container
+      - MYSQL_PORT=3306
+      - APP_HOST=django-container
+    depends_on:
+      - mrrhp-mysql-service
