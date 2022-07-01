@@ -6,7 +6,7 @@ version: '3.8'
 services:
 
   # service name (ほかから参照するとき使うので重要です。)
-  mrrhp-mysql-service:
+  mysql-service:
     # NOTE: container name conflict を防ぐため mrrhp- をつけている。
     container_name: mrrhp-mysql-container
     build: ./mysql-container
@@ -22,7 +22,7 @@ services:
       - MYSQL_PASSWORD=LocalAdminPassword
       - MYSQL_ROOT_PASSWORD=LocalRootPassword
 
-  mrrhp-django-service:
+  django-service:
     # NOTE: container name conflict を防ぐため mrrhp- をつけている。
     container_name: mrrhp-django-container
     build: ./django-container
@@ -44,4 +44,4 @@ services:
       - MYSQL_PORT=3306
       - APP_HOST=django-container
     depends_on:
-      - mrrhp-mysql-service
+      - mysql-service
