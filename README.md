@@ -11,5 +11,8 @@ git clone git@github.com:yuu-eguci/mrrhp-apache.git ./app/mrrhp-apache
 docker-compose up -d
 
 # Enter in the container
-docker-compose exec mrrhp-django-service sh
+docker-compose exec django-service sh
+
+# For mrrhp-apache v3
+pip install -r ./requirements.txt
 ```

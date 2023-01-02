@@ -9,9 +9,10 @@ services:
   mysql-service:
     # NOTE: container name conflict を防ぐため mrrhp- をつけている。
     container_name: mrrhp-mysql-container
-    build: ./mysql-container
+    build: ./mrrhp-mysql-container
+    # NOTE: 他のプロジェクトの mysql との重複を避けるため、変更している。
     ports:
-      - 3306:3306
+      - 3360:3306
     volumes:
       - ./db/mysql_data:/var/lib/mysql
       - ./db/mysql_log:/var/log/mysql
@@ -24,12 +25,11 @@ services:
 
   django-service:
     # NOTE: container name conflict を防ぐため mrrhp- をつけている。
-    container_name: mrrhp-django-container
-    build: ./django-container
+    container_name: mrrhp-v3-django-container
+    build: ./mrrhp-v3-django-container
+    # NOTE: 他のプロジェクトの django との重複を避けるため、変更している。
     ports:
-      - 8000:8000
-    # systemctl を有効にするもの。
-    privileged: true
+      - 8901:8000
     # tty, stdin_open しておくと exec するときに -it がいらないみたい。
     tty: true
     stdin_open: true
@@ -40,8 +40,10 @@ services:
       - MYSQL_DATABASE=app
       - MYSQL_USER=root
       - MYSQL_PASSWORD=LocalRootPassword
-      - MYSQL_HOSTNAME=mysql-container
+      - MYSQL_HOSTNAME=mrrhp-mysql-container
       - MYSQL_PORT=3306
-      - APP_HOST=django-container
+      - APP_HOST=mrrhp-v3-django-container
     depends_on:
       - mysql-service
+
+  # NOTE: ここに mrrhp-v4-django-container を作る予定。
