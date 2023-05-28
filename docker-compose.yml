@@ -9,7 +9,9 @@ services:
   mysql-service:
     # NOTE: container name conflict を防ぐため mrrhp- をつけている。
     container_name: mrrhp-mysql-container
-    build: ./mrrhp-mysql-container
+    build:
+      context: ./mrrhp-mysql-container
+      dockerfile: Dockerfile
     # NOTE: 他のプロジェクトの mysql との重複を避けるため、変更している。
     ports:
       - 3360:3306
@@ -17,17 +19,19 @@ services:
       - ./db/mysql_data:/var/lib/mysql
       - ./db/mysql_log:/var/log/mysql
       - ./db/mysql_conf:/etc/mysql/conf.d
-    # TODO: root パスワードはもっと強固に。
+    # NOTE: 開発環境では .env を使うし、本番環境では .env を (GitHub Actions が) 上書きして使うことを想定。
     environment:
-      - MYSQL_DATABASE=app
-      - MYSQL_USER=LocalAdmin
-      - MYSQL_PASSWORD=LocalAdminPassword
-      - MYSQL_ROOT_PASSWORD=LocalRootPassword
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
   django-service:
     # NOTE: container name conflict を防ぐため mrrhp- をつけている。
-    container_name: mrrhp-v3-django-container
-    build: ./mrrhp-v3-django-container
+    container_name: mrrhp-v4-django-container
+    build:
+      context: ./mrrhp-v4-django-container
+      dockerfile: Dockerfile
     # NOTE: 他のプロジェクトの django との重複を避けるため、変更している。
     ports:
       - 8901:8000
@@ -36,14 +40,17 @@ services:
     stdin_open: true
     volumes:
       - ./app/mrrhp-apache:/app
+      # pipenv 仮想環境をホストと共有。
+      - ./python-packages:/root/.local/share
+    # NOTE: 開発環境では .env を使うし、本番環境では .env を (GitHub Actions が) 上書きして使うことを想定。
     environment:
-      - DJANGO_SECRET_KEY=django-insecure-xxxxxxxxxxxx
-      - MYSQL_DATABASE=app
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=LocalRootPassword
-      - MYSQL_HOSTNAME=mrrhp-mysql-container
-      - MYSQL_PORT=3306
-      - APP_HOST=mrrhp-v3-django-container
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOSTNAME=${MYSQL_HOSTNAME}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - APP_HOST=${APP_HOST}
     depends_on:
       - mysql-service
 
