@@ -5,3 +5,4 @@
 app/
 !.gitkeep
 db/
+python-packages/
