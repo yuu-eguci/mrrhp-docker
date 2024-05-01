@@ -26,6 +26,6 @@ docker compose exec django-service sh
 # For mrrhp-apache v3
 pip install -r ./requirements.txt
 
-# For mrrhp-apache v4
+# For mrrhp-apache v4 (PIPENV_VENV_IN_PROJECT を設定しているので venv はプロジェクト内に作成される)
 pipenv sync --dev
 ```
